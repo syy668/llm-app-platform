@@ -1,0 +1,32 @@
+{
+  "name": "agentflow-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AgentFlow 企业级多智能体任务编排与执行平台 - 前端（Vite + Vue3 + TS + Arco Design Vue + AntV X6）",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:clean": "node scripts/clean-vite-cache.mjs && vite",
+    "doctor": "node scripts/clean-vite-cache.mjs --check",
+    "build": "vite build",
+    "build:check": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview --port 5173",
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@antv/x6": "^2.18.1",
+    "@arco-design/web-vue": "^2.57.0",
+    "axios": "^1.7.9",
+    "dayjs": "^1.11.13",
+    "pinia": "^2.3.0",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "typescript": "^5.7.2",
+    "vite": "^5.4.11",
+    "vue-tsc": "^2.1.10"
+  }
+}

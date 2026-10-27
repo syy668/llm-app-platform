@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+.env
+.venv/
+
+# VSCode
+.vscode/
+*.tmp
+
+# Word临时文件
+~$*.docx
+*.tmp
+
+# Chroma向量库数据
+chroma_db/
+
+# 日志
+*.log
+
+# 系统
+.DS_Store
+Thumbs.db
+
+# 前端依赖与构建产物（node_modules 约 150MB，绝不能入库）
+frontend_vue/node_modules/
+frontend_vue/dist/
+
+# 运行时数据：data/ 下有 system_config.json（含 LLM API Key），uploads/ 是用户上传件
+data/
+uploads/
+storage/
+
+# 本地工具项目数据（会话记忆等）
+.workbuddy/
+
+# pytest 临时目录（--basetemp=.pytest_tmp 时产生）
+# 注意：累积几百个子目录后，pytest 开场清空 basetemp 会被 safe-delete 守卫拦下，
+# 表现为「全部 test ERROR」。此时换一个新目录名（.pytest_tmp_runN）重跑即可，
+# 所以规则写成通配，避免新目录污染工作区。
+.pytest_tmp*/
+
+# 覆盖率原始数据（每次跑都会变，属于本地产物）
+# 注意：docs/test_reports/ 不忽略 —— HTML 报告是要提交给 GitHub 展示的证据。
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# pytest 缓存（lastfailed / nodeids / stepwise），本地产物，误提交会污染他人工作区
+.pytest_cache/
+
+# 本地临时归档目录（大扫除时 mv 出来的待删文件，确认后再物理删除）
+_trash_*/
+

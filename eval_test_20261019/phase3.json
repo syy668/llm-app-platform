@@ -1,0 +1,14 @@
+{
+ "retest": {
+  "dataset": 11,
+  "run": 15,
+  "items_before": 2,
+  "scores_before": 1,
+  "del_http": 200,
+  "items_after": 0,
+  "run_rows_after": 1,
+  "scores_after": 1,
+  "get_run_http": 200,
+  "run_status": "done"
+ }
+}

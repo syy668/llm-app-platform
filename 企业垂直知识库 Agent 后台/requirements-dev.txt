@@ -1,0 +1,10 @@
+# 单元测试依赖（仅测试骨架需要；业务运行依赖见 requirements.txt）
+# httpx 已随 fastapi 安装，无需重复列出。
+pytest>=8.0
+
+# ---- 测试报告（v1.20）----
+# 均为轻量纯 Python 包，不引入运行时依赖，只影响测试产出。
+# pytest-html：生成 docs/test_reports/report.html（--self-contained-html 单文件，可直接提交）
+# pytest-cov：基于 coverage.py，生成 HTML 覆盖率报告 + 终端 TOTAL 行
+pytest-html>=4.0
+pytest-cov>=5.0

@@ -1,0 +1,127 @@
+/**
+ * 全局基础样式 —— 只放「所有页面都需要」的最少量规则。
+ *
+ * 刻意保持极薄：组件外观一律交给 Arco 主题变量，页面内部差异走 scoped css，
+ * 避免出现与 Arco 冲突的硬编码样式。
+ */
+
+/* 主题微调：把 Arco 的主色对齐原型规范的信息色 #1677FF → 使用 Arco 默认 arcoblue 体系 */
+:root {
+  /* 状态色板（与原型规范 §1.6 一致，供自定义图表/画布引用） */
+  --af-color-success: #00b42a;
+  --af-color-danger: #f53f3f;
+  --af-color-warning: #ff7d00;
+  --af-color-info: #1677ff;
+  --af-color-running: #165dff;
+  --af-color-summarizing: #722ed1;
+  --af-color-border: #e5e6eb;
+  --af-color-fill: #f7f8fa;
+  --af-color-text-2: #4e5969;
+  --af-color-text-3: #86909c;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  font-size: 14px;
+  color: #1d2129;
+  background: var(--color-fill-2, #f7f8fa);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 数字等宽：表格与指标卡里的数值必须对齐 */
+.af-num,
+.arco-table td .af-num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* 等宽文本（trace_id、task_no、工具名、JSON key） */
+.af-mono {
+  font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 12px;
+}
+
+/* 页面统一留白：24 栅格容器内的 20px 边距 */
+.af-page {
+  padding: 16px 20px 24px;
+}
+
+.af-page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.af-page-head h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.3px;
+}
+
+.af-page-head .af-sub {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--af-color-text-3);
+}
+
+/* 次要说明文字 */
+.af-muted {
+  color: var(--af-color-text-3);
+  font-size: 12px;
+}
+
+.af-nowrap {
+  white-space: nowrap;
+}
+
+/* 表格内单行省略 */
+.af-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 状态脉冲点：仅用于"进行中"类状态，弱动效 */
+.af-pulse {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: af-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes af-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* 滚动条（画布与 Trace 面板内部） */
+.af-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.af-scroll::-webkit-scrollbar-thumb {
+  background: #c9cdd4;
+  border-radius: 4px;
+}
+
+.af-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}

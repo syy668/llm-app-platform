@@ -1,0 +1,13 @@
+# 前端构建上下文排除清单
+node_modules
+dist
+docs
+*.md
+.env
+.env.*
+!.env.example
+.git
+.gitignore
+.vscode
+Dockerfile
+.dockerignore

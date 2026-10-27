@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><title>AgentFlow · 任务管理 / 新建任务</title><style>
+*{box-sizing:border-box}
+body{margin:0;background:#F7F8FA;font-family:"PingFang SC","Microsoft YaHei",Inter,system-ui,sans-serif;color:#1D2129;font-size:14px;-webkit-font-smoothing:antialiased}
+.side{position:fixed;left:0;top:0;bottom:0;width:220px;background:#fff;border-right:1px solid #E5E6EB;display:flex;flex-direction:column;z-index:6}
+.brand{height:56px;display:flex;align-items:center;gap:9px;padding:0 16px;border-bottom:1px solid #F2F3F5}
+.brand .mark{width:26px;height:26px;border-radius:6px;background:#165DFF;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500}
+.brand .nm{font-size:15px;font-weight:500;letter-spacing:-.2px}
+.brand .ver{font-size:11px;color:#86909C;margin-left:auto}
+.nav{padding:8px 0;flex:1}
+.grp{padding:12px 16px 6px;font-size:11px;color:#86909C}
+.item{height:38px;margin:2px 8px;padding:0 10px;border-radius:4px;display:flex;align-items:center;gap:9px;color:#4E5969;font-size:13px}
+.item svg{width:15px;height:15px;stroke:#86909C;fill:none;stroke-width:1.5;flex:none}
+.item.on{background:#E8F0FF;color:#165DFF;font-weight:500}
+.item.on svg{stroke:#165DFF}
+.item .badge{margin-left:auto;background:#F53F3F;color:#fff;height:16px;min-width:16px;border-radius:8px;font-size:11px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.side-foot{border-top:1px solid #F2F3F5;padding:10px 16px;font-size:11px;color:#86909C;line-height:1.7}
+.main{margin-left:220px;min-height:100vh}
+.topbar{height:56px;background:#fff;border-bottom:1px solid #E5E6EB;display:flex;align-items:center;gap:14px;padding:0 20px;position:sticky;top:0;z-index:5}
+.crumb{font-size:13px;color:#86909C;display:flex;align-items:center;gap:6px}
+.crumb b{color:#1D2129;font-weight:400}
+.crumb .sl{color:#C9CDD4}
+.sp{flex:1}
+.search{width:210px;height:30px;border:1px solid #E5E6EB;border-radius:2px;display:flex;align-items:center;gap:7px;padding:0 10px;color:#C9CDD4;font-size:12px;background:#F7F8FA}
+.bell{position:relative;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border:1px solid #E5E6EB;border-radius:4px}
+.dot-red{position:absolute;top:4px;right:4px;width:6px;height:6px;background:#F53F3F;border-radius:50%;border:1px solid #fff}
+.who{display:flex;align-items:center;gap:8px;padding-left:12px;border-left:1px solid #F2F3F5}
+.ava{width:26px;height:26px;border-radius:50%;background:#E8F0FF;color:#165DFF;font-size:12px;display:flex;align-items:center;justify-content:center}
+.who .n{font-size:12px;line-height:1.3}
+.who .r{font-size:11px;color:#86909C}
+.content{padding:16px 20px 28px}
+.page-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+h1{margin:0;font-size:20px;line-height:28px;font-weight:500}
+.sub{margin-top:3px;font-size:12px;color:#86909C}
+.card{background:#fff;border:1px solid #E5E6EB;border-radius:4px}
+.btns{display:flex;gap:8px;align-items:center}
+.btn{height:32px;padding:0 13px;border:1px solid #E5E6EB;background:#fff;border-radius:2px;font-size:13px;color:#4E5969;display:inline-flex;align-items:center;gap:6px;font-family:inherit}
+.btn.pri{background:#165DFF;border-color:#165DFF;color:#fff}
+.btn.dgr{color:#F53F3F;border-color:#FBACA3}
+.btn.sm{height:26px;padding:0 9px;font-size:12px}
+.btn.tx{border:0;background:none;color:#165DFF;padding:0 4px}
+.btn.gho{background:#F7F8FA}
+.btn.off{color:#C9CDD4;border-color:#E5E6EB;background:#F7F8FA}
+.tag{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 7px;border-radius:2px;font-size:12px;border:1px solid transparent;white-space:nowrap}
+.tag i{width:6px;height:6px;border-radius:50%;font-style:normal}
+.t-plan{background:#E8F3FF;color:#1677FF;border-color:#94BFFF}.t-plan i{background:#1677FF}
+.t-run{background:#E8F0FF;color:#165DFF;border-color:#94BFFF}.t-run i{background:#165DFF}
+.t-summ{background:#F5E8FF;color:#722ED1;border-color:#D3ADF7}.t-summ i{background:#722ED1}
+.t-wait{background:#FFF7E8;color:#FF7D00;border-color:#FFCF8B}.t-wait i{background:#FF7D00}
+.t-ok{background:#E8FFEA;color:#00B42A;border-color:#7BE188}
+.t-err{background:#FFECE8;color:#F53F3F;border-color:#FBACA3}
+.t-off{background:#F2F3F5;color:#86909C;border-color:#E5E6EB}
+.t-hi{background:#FFECE8;color:#F53F3F;border-color:#FBACA3}
+.t-mid{background:#FFF7E8;color:#FF7D00;border-color:#FFCF8B}
+.t-info{background:#E8F3FF;color:#1677FF;border-color:#94BFFF}
+.chip{display:inline-flex;align-items:center;height:22px;padding:0 7px;border-radius:2px;background:#F2F3F5;color:#4E5969;font-size:12px}
+.chip.hi{background:#FFECE8;color:#F53F3F}
+table.k{width:100%;border-collapse:collapse;table-layout:fixed}
+.k th{height:38px;background:#F7F8FA;border-bottom:1px solid #E5E6EB;font-size:12px;font-weight:400;color:#4E5969;text-align:left;padding:0 12px;white-space:nowrap}
+.k td{height:46px;border-bottom:1px solid #F2F3F5;padding:0 12px;font-size:13px;vertical-align:middle}
+.k tr:last-child td{border-bottom:0}
+.mut{color:#86909C;font-size:12px}
+.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px}
+.num{font-variant-numeric:tabular-nums}
+.right{text-align:right}
+.cols>div{min-width:0}
+.filter{display:flex;align-items:center;gap:12px;padding:12px 16px}
+.sel{height:32px;border:1px solid #E5E6EB;border-radius:2px;padding:0 10px;font-size:13px;color:#1D2129;display:inline-flex;align-items:center;gap:8px;background:#fff}
+.sel .lb{color:#86909C;font-size:12px}
+.caret{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid #86909C}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:12px 0}
+.kpi{background:#fff;border:1px solid #E5E6EB;border-radius:4px;padding:14px 16px;position:relative}
+.kpi h4{margin:0;font-size:12px;font-weight:400;color:#4E5969}
+.kpi .v{font-size:26px;font-weight:600;line-height:34px;margin-top:6px;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.kpi .v small{font-size:12px;font-weight:400;color:#86909C;margin-left:4px;letter-spacing:0}
+.kpi .f{font-size:11px;color:#86909C;margin-top:4px;display:flex;align-items:center;gap:5px}
+.up{color:#00B42A}.down{color:#F53F3F}
+.kpi .ic{position:absolute;right:14px;top:14px;width:26px;height:26px;border-radius:6px;background:#F7F8FA;display:flex;align-items:center;justify-content:center;font-size:11px;color:#86909C}
+.kpi.warn{border-color:#FFCF8B;background:#FFFDF9}
+.grid3{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.card-h{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #F2F3F5}
+.card-h h3{margin:0;font-size:14px;font-weight:500}
+.hint{font-size:11px;color:#86909C}
+.tbar{display:flex;gap:10px;align-items:center;padding:12px 16px;border-bottom:1px solid #F2F3F5}
+.tbar .srch{width:260px;height:30px;border:1px solid #E5E6EB;border-radius:2px;display:flex;align-items:center;padding:0 10px;font-size:12px;color:#C9CDD4;gap:6px}
+.pager{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;font-size:12px;color:#86909C}
+.pg{display:flex;gap:4px}
+.pg span{min-width:26px;height:26px;border:1px solid #E5E6EB;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#4E5969}
+.pg span.on{background:#165DFF;border-color:#165DFF;color:#fff}
+.cols{display:grid;grid-template-columns:1fr 320px;gap:12px;align-items:start}
+.field{margin-bottom:16px}
+.lb{font-size:13px;color:#1D2129;margin-bottom:6px;display:flex;gap:4px;align-items:center}
+.req{color:#F53F3F}
+.ta{border:1px solid #E5E6EB;border-radius:2px;padding:10px 12px;font-size:13px;line-height:22px;color:#1D2129;min-height:92px;position:relative;background:#fff}
+.ta .cnt{position:absolute;right:10px;bottom:6px;font-size:11px;color:#86909C}
+.range{display:inline-flex;align-items:center;border:1px solid #E5E6EB;border-radius:2px;height:34px;font-size:13px;background:#fff}
+.range span{padding:0 12px}
+.range .sep{color:#C9CDD4;padding:0}
+.adv{padding:0 16px 14px}
+.row-l{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px dashed #F2F3F5;font-size:13px}
+.row-l:last-child{border-bottom:0}
+.sw{width:34px;height:18px;border-radius:9px;background:#C9CDD4;position:relative;flex:none}
+.sw i{position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;top:2px;left:2px}
+.sw.on{background:#165DFF}
+.sw.on i{left:18px}
+.form-foot{display:flex;gap:10px;padding:14px 16px;border-top:1px solid #F2F3F5}
+.step{display:flex;gap:10px;padding:9px 0;font-size:12px;color:#4E5969;line-height:18px}
+.step b{width:18px;height:18px;border-radius:50%;background:#E8F0FF;color:#165DFF;font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex:none;margin-top:1px}
+.dh{background:#fff;border:1px solid #E5E6EB;border-radius:4px;padding:14px 16px 0}
+.dh-top{display:flex;align-items:center;gap:10px}
+.dh-top h1{font-size:17px}
+.dh-meta{display:flex;flex-wrap:wrap;gap:8px 26px;margin-top:11px;padding-bottom:12px}
+.mi{font-size:12px;color:#86909C;display:flex;gap:6px;align-items:center}
+.mi b{font-weight:400;color:#1D2129;font-size:12px}
+.goal{margin-top:2px;background:#F7F8FA;border-radius:2px;padding:9px 12px;font-size:13px;color:#4E5969;line-height:20px;display:flex;gap:10px}
+.goal .k2{color:#86909C;font-size:12px;flex:none;padding-top:1px}
+.banner{margin-top:12px;display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:2px;font-size:12px}
+.banner.warn{background:#FFF7E8;border:1px solid #FFCF8B;color:#874A00}
+.banner.err{background:#FFECE8;border:1px solid #FBACA3;color:#8B1F1F}
+.banner.info{background:#E8F3FF;border:1px solid #94BFFF;color:#0E42D2}
+.dagbar{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid #F2F3F5}
+.zoom{display:flex;border:1px solid #E5E6EB;border-radius:2px;overflow:hidden;font-size:12px;color:#4E5969}
+.zoom span{padding:3px 9px;border-left:1px solid #E5E6EB}
+.zoom span:first-child{border-left:0}
+.legend{display:flex;gap:14px;font-size:11px;color:#86909C;margin-left:auto}
+.legend i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px}
+.tabs{display:flex;gap:26px;padding:0 16px;border-bottom:1px solid #E5E6EB;background:#fff}
+.tab{height:44px;display:flex;align-items:center;gap:6px;font-size:13px;color:#4E5969;position:relative}
+.tab.on{color:#165DFF;font-weight:500}
+.tab.on:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:#165DFF}
+.tab .c{background:#F2F3F5;color:#4E5969;font-size:11px;padding:0 5px;border-radius:8px;line-height:16px}
+.split{display:grid;grid-template-columns:1fr 430px}
+.pane{padding:12px 16px;border-left:1px solid #F2F3F5}
+.h4s{font-size:12px;color:#86909C;margin:0 0 8px;display:flex;justify-content:space-between;align-items:center}
+.json{background:#F7F8FA;border:1px solid #F2F3F5;border-radius:2px;padding:9px 11px;font-family:ui-monospace,Consolas,monospace;font-size:12px;line-height:19px;white-space:pre;overflow:hidden;color:#1D2129}
+.json .k{color:#722ED1}.json .s{color:#00843D}.json .n{color:#165DFF}.json .p{color:#86909C}
+.callrow{display:flex;align-items:center;gap:8px;height:36px;border-bottom:1px dashed #F2F3F5;font-size:12px}
+.bar{height:6px;background:#F2F3F5;border-radius:3px;position:relative;overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:#165DFF;border-radius:3px}
+.bar.g i{background:#00B42A}.bar.r i{background:#F53F3F}
+.trace-ctl{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid #F2F3F5}
+.play{width:26px;height:26px;border-radius:50%;background:#165DFF;display:flex;align-items:center;justify-content:center}
+.speeds{display:flex;border:1px solid #E5E6EB;border-radius:2px;font-size:12px;overflow:hidden}
+.speeds span{padding:3px 8px;color:#4E5969;border-left:1px solid #E5E6EB}
+.speeds span:first-child{border-left:0}
+.speeds span.on{background:#165DFF;color:#fff;border-color:#165DFF}
+.track{flex:1;height:4px;background:#F2F3F5;border-radius:2px;position:relative}
+.track i{position:absolute;left:0;top:0;bottom:0;width:62%;background:#165DFF;border-radius:2px}
+.track b{position:absolute;left:62%;top:-4px;width:12px;height:12px;background:#fff;border:2px solid #165DFF;border-radius:50%}
+.trow{display:grid;grid-template-columns:42px 84px 86px 1fr 136px 70px 78px;align-items:center;gap:8px;height:33px;padding:0 14px;border-bottom:1px solid #F7F8FA;font-size:12px}
+.trow.hd{height:28px;background:#F7F8FA;color:#4E5969;font-size:11px;border-bottom:1px solid #E5E6EB}
+.trow.err{background:#FFF5F3}
+.scrim{position:fixed;top:0;left:0;width:100vw;height:100vh;background:#1D2129;opacity:.42;z-index:8}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:540px;background:#fff;z-index:9;display:flex;flex-direction:column;box-shadow:-8px 0 24px rgba(0,0,0,.14)}
+.dr-h{padding:15px 20px;border-bottom:1px solid #F2F3F5}
+.dr-b{flex:1;padding:4px 20px 16px}
+.dr-f{padding:13px 20px;border-top:1px solid #E5E6EB;display:flex;justify-content:flex-end;align-items:center;gap:10px}
+.sec-t{font-size:12px;color:#86909C;margin:16px 0 8px}
+.riskbox{background:#FFF7E8;border:1px solid #FFCF8B;border-radius:2px;padding:10px 12px;font-size:13px;color:#874A00;line-height:20px}
+.kv{display:flex;justify-content:space-between;font-size:13px;padding:8px 0;border-bottom:1px dashed #F2F3F5}
+.mat{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+.mcard{background:#fff;border:1px solid #E5E6EB;border-radius:4px;padding:14px 16px}
+.mcard h3{margin:0 0 4px;font-size:14px;font-weight:500;display:flex;align-items:center;gap:8px}
+.mcard p{margin:0 0 10px;font-size:12px;color:#86909C;line-height:1.7}
+.mline{display:flex;justify-content:space-between;font-size:12px;color:#4E5969;padding:5px 0;border-top:1px dashed #F2F3F5}
+.rm-item{display:flex;align-items:center;gap:8px;padding:7px 12px;margin:2px 0;border-radius:3px;font-size:12.5px;color:#C9CDD4}
+.rm-hide{color:#5F6B7A;background:rgba(255,255,255,.03)}
+.rm-hide span{margin-left:auto;font-size:10px;color:#FF7D00;border:1px solid rgba(255,125,0,.35);border-radius:2px;padding:0 4px;line-height:15px}
+.ck{color:#00B42A}.no{color:#C9CDD4}
+.seg{display:inline-flex;border:1px solid #E5E6EB;border-radius:2px;overflow:hidden;font-size:13px;background:#fff}
+.seg span{padding:5px 14px;color:#4E5969;border-left:1px solid #E5E6EB}
+.seg span:first-child{border-left:0}
+.seg span.on{background:#E8F0FF;color:#165DFF}
+.probe{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+.pcard{background:#fff;border:1px solid #E5E6EB;border-radius:4px;padding:14px 16px}
+.pcard .t{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500}
+.pcard .rows{margin-top:10px;font-size:12px;color:#4E5969;line-height:1.9}
+.pcard .rows b{font-weight:400;color:#86909C;display:inline-block;width:78px}
+.okdot{width:8px;height:8px;border-radius:50%;background:#00B42A}
+.logbox{background:#1D2129;border-radius:4px;padding:14px 16px;font-family:ui-monospace,Consolas,monospace;font-size:12px;line-height:20px;color:#C9D1D9;overflow:hidden}
+.logbox .t{color:#86909C}
+.logbox .w{color:#FFCF8B}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.cmp{background:#fff;border:1px solid #E5E6EB;border-radius:4px;padding:14px 16px}
+.cmp.win{border-color:#94BFFF;box-shadow:0 0 0 1px #E8F0FF inset}
+.cmp .hd{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:500}
+.cmp .m{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px dashed #F2F3F5;font-size:13px}
+.cmp .m span{color:#4E5969;font-size:12px}
+.cmp .m b{font-weight:500;font-variant-numeric:tabular-nums}
+.star{color:#FF7D00;letter-spacing:1px;font-size:12px}
+.star .off{color:#E5E6EB}
+</style></head>
+<body>
+<div class="side">
+  <div class="brand"><div class="mark">AF</div><div class="nm">AgentFlow</div><div class="ver">v1.0.0</div></div>
+  <div class="nav">
+    <div class="grp">业务</div><div class="item on"><svg viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg><span>工作台</span></div><div class="item"><svg viewBox="0 0 16 16"><path d="M3 4h10M3 8h10M3 12h6"/></svg><span>任务管理</span></div><div class="item"><svg viewBox="0 0 16 16"><path d="M2 9l2-5h8l2 5v4H2z"/><path d="M2 9h4l1 2h2l1-2h4"/></svg><span>审批收件箱</span><span class="badge">3</span></div><div class="item"><svg viewBox="0 0 16 16"><path d="M3 13V7M8 13V3M13 13V9"/></svg><span>评测看板</span></div><div class="item"><svg viewBox="0 0 16 16"><path d="M8 2l6 3-6 3-6-3 6-3z"/><path d="M2 8l6 3 6-3"/><path d="M2 11l6 3 6-3"/></svg><span>记忆管理</span></div>
+    <div class="grp">系统</div><div class="item"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.2"/><path d="M8 2v1.6M8 12.4V14M2 8h1.6M12.4 8H14M3.8 3.8l1.1 1.1M11.1 11.1l1.1 1.1M12.2 3.8l-1.1 1.1M4.9 11.1L3.8 12.2"/></svg><span>系统设置</span></div>
+  </div>
+  <div class="side-foot">电商经营分析 Agent 平台<br>环境：生产 · 负责人 张三</div>
+</div>
+<div class="main">
+  <div class="topbar">
+    <div class="crumb">AgentFlow<span class="sl">/</span><b>任务管理 / 新建任务</b></div>
+    <div class="sp"></div>
+    <div class="search"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#C9CDD4" stroke-width="1.6"><circle cx="7" cy="7" r="4.2"/><path d="M10.2 10.2L14 14"/></svg>搜索任务编号 / trace_id</div>
+    <div class="bell"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#4E5969" stroke-width="1.4"><path d="M4.4 6.6a3.6 3.6 0 017.2 0c0 3 .9 3.9 1.3 4.4H3.1c.4-.5 1.3-1.4 1.3-4.4z"/><path d="M6.6 13a1.5 1.5 0 002.8 0"/></svg><span class="dot-red"></span></div>
+    <div class="who"><div class="ava">张</div><div><div class="n">张三</div><div class="r">运营管理员</div></div></div>
+  </div>
+  <div class="content">
+<div class="page-head"><div><h1>新建任务</h1><div class="sub">用一句业务目标 + 业务时间范围发起一次多智能体编排</div></div>
+<div class="btns"><button class="btn">返回列表</button></div></div>
+<div class="cols">
+  <div class="card">
+    <div style="padding:18px 16px 0">
+      <div class="field"><div class="lb"><span class="req">*</span>任务目标</div>
+        <div class="ta">分析 2026 年 9 月女装类目的 GMV 环比下滑原因，按品类与渠道拆分，给出 Top3 归因与可执行改进建议，并生成趋势对比图。
+        <span class="cnt">86 / 500</span></div>
+        <div style="font-size:11px;color:#86909C;margin-top:6px;line-height:18px">建议包含：分析对象 · 指标 · 时间 · 期望产出。目标越具体，Planner 规划越稳定（≤500 字）。</div>
+      </div>
+      <div class="field"><div class="lb"><span class="req">*</span>业务时间范围</div>
+        <div class="range"><span>2026-09-01</span><span class="sep">→</span><span>2026-09-30</span></div>
+        <div style="font-size:11px;color:#86909C;margin-top:6px">与自然月对齐；跨度建议 ≤ 90 天，过大会触发大范围扫描审批。</div>
+      </div>
+    </div>
+    <div style="border-top:1px solid #F2F3F5">
+      <div class="adv">
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#1D2129;padding:12px 0 4px"><span style="color:#86909C">▾</span>高级选项<span class="mut">（可选）</span></div>
+        <div class="row-l"><div>同步等待执行<div style="font-size:11px;color:#86909C;margin-top:2px">开启后请求会阻塞到任务终态或下次挂起，页面可能等待较久</div></div><div class="sw"><i></i></div></div>
+        <div class="row-l"><div class="ro">上下文压缩<span class="tag t-off">待接入</span></div><span class="mut">由服务端策略控制</span></div>
+        <div class="row-l"><div class="ro">分层记忆注入<span class="tag t-off">待接入</span></div><span class="mut">默认读取长期记忆 ≤3 条</span></div>
+        <div class="row-l"><div class="ro">标记为评测样本<span class="tag t-off">待接入</span></div><span class="mut">评测集由看板统一管理</span></div>
+        <div style="font-size:11px;color:#86909C;line-height:18px;margin-top:10px;background:#F7F8FA;padding:8px 10px;border-radius:2px">提交接口当前仅接受 goal / time_range / sync；其余开关为只读展示，待后端开放后再启用。</div>
+      </div>
+    </div>
+    <div class="form-foot"><button class="btn pri">提交并开始执行</button><button class="btn">重置</button><span class="mut" style="margin-left:auto;align-self:center">提交后立即进入详情页，可实时观察执行</span></div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div class="card"><div class="card-h"><h3>提交后会发生什么</h3></div>
+      <div style="padding:6px 16px 14px">
+        <div class="step"><b>1</b><div><span style="color:#1D2129">Planner 规划</span><br>生成 DAG 子任务计划并做无环校验</div></div>
+        <div class="step"><b>2</b><div><span style="color:#1D2129">Executor 执行</span><br>按依赖顺序调用 sql-query 等 MCP 工具</div></div>
+        <div class="step"><b>3</b><div><span style="color:#1D2129">人工审批</span><br>高危工具 / 大范围扫描会挂起等待审核</div></div>
+        <div class="step"><b>4</b><div><span style="color:#1D2129">Reviewer 评审</span><br>5 维打分（有据性 / 忠实度 / 自洽性…）</div></div>
+        <div class="step"><b>5</b><div><span style="color:#1D2129">Summarizer 汇总</span><br>生成 Markdown 报告并引用图表与知识库</div></div>
+        <div class="step"><b>6</b><div><span style="color:#1D2129">Notifier 通知</span><br>按需推送到运营群</div></div>
+      </div></div>
+    <div class="card" style="background:#FFFDF9;border-color:#FFCF8B"><div style="padding:14px 16px;font-size:12px;color:#874A00;line-height:20px">
+      <b style="font-weight:500">审批提示</b><br>目标是「全量 / 全站 / 扫描」或涉及 notify 推送时，大概率触发人工闸门，任务会停在「待审批」，需审核人处理后才继续。</div></div>
+  </div>
+</div></div>
+</div>
+</body></html>

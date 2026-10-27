@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>DAG 组件预览（仅本地核对视觉，不参与构建）</title>
+    <!--
+      仅用于本地视觉核对，vite build 不会打包本文件。
+        dag-preview.html            默认视图（假数据，5 个子任务 + memory/compress/审批/replan）
+        dag-preview.html?fs=1       直接进入全屏形态
+        dag-preview.html?scale=1    初始缩放设为 100%
+    -->
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module">
+      import { createApp, h, onMounted, ref } from 'vue'
+      import ArcoVue from '@arco-design/web-vue'
+      import '@arco-design/web-vue/dist/arco.css'
+      import './src/styles/global.css'
+      import DagGraph from './src/components/DagGraph.vue'
+
+      const mk = (seq, name, tool, status, deps, risk, retry, summary) => ({
+        id: seq,
+        seq,
+        name,
+        tool_hint: tool,
+        status,
+        depends_on: deps,
+        risk_level: risk,
+        retry_count: retry,
+        result_summary: summary,
+      })
+
+      const detail = {
+        task_id: 'task-preview',
+        goal: '分析本月华东区 GMV 下滑原因，给出补货与投放建议',
+        status: 'RUNNING',
+        created_at: '2026-10-22T08:00:00Z',
+        updated_at: '2026-10-22T08:04:12Z',
+        finished_at: null,
+        use_memory: true,
+        compress: true,
+        eval_tag: '',
+        replan_count: 1,
+        token_usage: 18422,
+        approvals: {},
+        subtasks: [
+          mk(1, 'skus 表按品类汇总库存周转与库存量', 'sql_query', 'DONE', [], 'low', 0, '华东 6 品类周转天数 12~38 天'),
+          mk(2, '断货 SKU 明细清单（近 30 天）', 'sql_query', 'DONE', [1], 'low', 0, '命中 37 个断货 SKU'),
+          mk(3, '检索历史周报中的库存风险结论', 'kb_search', 'RUNNING', [1], 'low', 0, null),
+          mk(4, '投放预算调整建议', 'chart_render', 'READY', [2, 3], 'high', 1, null),
+          mk(5, '生成归因结论并推送', 'notify', 'PENDING', [4], 'low', 0, null),
+        ],
+      }
+
+      const app = createApp({
+        setup() {
+          const dagRef = ref(null)
+          onMounted(() => {
+            // ?fs=1 模拟全屏形态；?scale=1 指定初始缩放
+            const p = new URLSearchParams(location.search)
+            if (p.get('fs') === '1') setTimeout(() => dagRef.value?.toggleFullscreen(), 60)
+            const scale = Number(p.get('scale'))
+            if (scale > 0) setTimeout(() => dagRef.value?.zoomTo(scale), 80)
+          })
+          return () =>
+            h(
+              'div',
+              { style: 'padding:20px;background:#F7F8FA' },
+              [
+                h('div', { style: 'font:500 13px/1.6 system-ui;color:#4E5969;margin-bottom:8px' }, 'DAG 组件预览 · 容器随窗口宽度自适应'),
+                h('div', { style: 'background:#fff;border:1px solid #E5E6EB;border-radius:4px;padding:10px 12px 12px' },
+                  [h(DagGraph, { ref: dagRef, detail, liveNodes: {}, awaiting: false, height: 460 })]),
+              ],
+            )
+        },
+      })
+      app.use(ArcoVue)
+      app.mount('#app')
+    </script>
+  </body>
+</html>

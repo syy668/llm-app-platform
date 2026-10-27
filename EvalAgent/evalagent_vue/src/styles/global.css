@@ -1,0 +1,133 @@
+/* ==========================================================================
+   EvalAgent 全局样式 —— 对齐项目一 ui-prototype.html 冷色调 B 端风格
+   ========================================================================== */
+
+:root {
+  --ea-primary: #165dff;
+  --ea-primary-light: #e8f3ff;
+  --ea-bg: #f7f8fa;
+  --ea-card: #ffffff;
+  --ea-text-1: #1d2129;
+  --ea-text-2: #4e5969;
+  --ea-text-3: #86909c;
+  --ea-border: #e5e6eb;
+  --ea-border-light: #f2f3f5;
+  --ea-success: #00b42a;
+  --ea-warning: #ff7d00;
+  --ea-warning-bg: #fff3e8;
+  --ea-danger: #f53f3f;
+  --ea-diff-bg: #fffbe6; /* A/B 差值 > 0.1 标黄底色 */
+
+  /* Element Plus 主色对齐冷色调 */
+  --el-color-primary: #165dff;
+  --el-color-primary-light-3: #4787f2;
+  --el-color-primary-light-5: #7aa8f6;
+  --el-color-primary-light-7: #b3cff9;
+  --el-color-primary-light-8: #cde0fb;
+  --el-color-primary-light-9: #e8f3ff;
+  --el-color-primary-dark-2: #0e42d2;
+  --el-border-radius-base: 6px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  font-family: Inter, 'Microsoft YaHei', 'PingFang SC', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  color: var(--ea-text-1);
+  background: var(--ea-bg);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+}
+
+/* ---------- 布局 ---------- */
+.ea-layout {
+  display: flex;
+  height: 100%;
+}
+
+.ea-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ea-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+}
+
+/* ---------- 页头 ---------- */
+.ea-page-header {
+  margin-bottom: 16px;
+}
+
+.ea-page-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ea-text-1);
+}
+
+.ea-page-sub {
+  font-size: 13px;
+  color: var(--ea-text-3);
+  margin-top: 4px;
+}
+
+/* ---------- 卡片 ---------- */
+.ea-card {
+  background: var(--ea-card);
+  border: 1px solid var(--ea-border);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(29, 33, 41, 0.04);
+  margin-bottom: 16px;
+}
+
+.ea-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--ea-border-light);
+}
+
+.ea-card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ea-text-1);
+}
+
+.ea-card-body {
+  padding: 20px;
+}
+
+/* ---------- 差异标黄行 ---------- */
+.ea-diff-row td,
+.el-table .ea-diff-row > td.el-table__cell {
+  background-color: var(--ea-diff-bg) !important;
+}
+
+/* ---------- 表格辅助 ---------- */
+.ea-mono {
+  font-family: 'SFMono-Regular', Consolas, 'Courier New', monospace;
+  font-size: 12px;
+}
+
+.ea-cell-question {
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

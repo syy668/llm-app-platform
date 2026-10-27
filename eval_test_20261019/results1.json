@@ -1,0 +1,146 @@
+[
+ {
+  "tc": "TC3-1",
+  "module": "权限-未登录",
+  "steps": "不带Token GET /eval/datasets",
+  "expected": "401 未授权",
+  "actual": "HTTP 401 body={\"code\":401,\"message\":\"未登录或登录已过期\",\"data\":null}",
+  "status": "PASS",
+  "note": ""
+ },
+ {
+  "tc": "TC3-2",
+  "module": "权限-普通用户可读",
+  "steps": "user01 GET /eval/datasets、GET /eval/runs",
+  "expected": "200 可读",
+  "actual": "datasets HTTP 200, runs HTTP 200, total=5/5",
+  "status": "PASS",
+  "note": ""
+ },
+ {
+  "tc": "TC3-3",
+  "module": "权限-普通用户写",
+  "steps": "user01 POST /eval/runs",
+  "expected": "403 禁止",
+  "actual": "HTTP 403 body={\"code\":403,\"message\":\"仅管理员可执行该操作\",\"data\":null}",
+  "status": "PASS",
+  "note": ""
+ },
+ {
+  "tc": "TC3-4+TC2-3",
+  "module": "权限-普通用户删除",
+  "steps": "user01 DELETE /eval/datasets/{id}、DELETE /eval/runs/{id}",
+  "expected": "403 禁止",
+  "actual": "dataset HTTP 403, run HTTP 403",
+  "status": "PASS",
+  "note": ""
+ },
+ {
+  "tc": "TC1-4a",
+  "module": "rag_config边界",
+  "steps": "top_k=0 创建run",
+  "expected": "422 校验错误(范围1-50)",
+  "actual": "HTTP 422 detail={\"code\":422,\"message\":\"参数校验失败: body.rag_config.top_k - Input should be greater than or equal to 1\",\"data\":null}",
+  "status": "PASS",
+  "note": ""
+ },
+ {
+  "tc": "TC1-4b",
+  "module": "rag_config边界",
+  "steps": "top_k=100 创建run",
+  "expected": "422 校验错误(范围1-50)",
+  "actual": "HTTP 422 detail={\"code\":422,\"message\":\"参数校验失败: body.rag_config.top_k - Input should be less than or equal to 50\",\"data\":null}",
+  "status": "PASS",
+  "note": ""
+ },
+ {
+  "tc": "TC1-5",
+  "module": "rag_config枚举",
+  "steps": "search_mode=非法字符串 创建run",
+  "expected": "422 枚举校验错误",
+  "actual": "HTTP 422 detail={\"code\":422,\"message\":\"参数校验失败: body.rag_config.search_mode - String should match pattern '^(vector_only|bm25_vector_hybrid)$'\",\"data\":null}",
+  "status": "PASS",
+  "note": ""
+ },
+ {
+  "tc": "TC1-6",
+  "module": "rag_config数值",
+  "steps": "chunk_size=-100 创建run",
+  "expected": "422 数值校验错误(100-4000)",
+  "actual": "HTTP 422 detail={\"code\":422,\"message\":\"参数校验失败: body.rag_config.chunk_size - Input should be greater than or equal to 100\",\"data\":null}",
+  "status": "PASS",
+  "note": ""
+ },
+ {
+  "tc": "TC4-1",
+  "module": "异常输入",
+  "steps": "dataset_id=999999 创建run",
+  "expected": "404 不存在",
+  "actual": "HTTP 404 body={\"code\":404,\"message\":\"评测数据集不存在\",\"data\":null}",
+  "status": "PASS",
+  "note": ""
+ },
+ {
+  "tc": "TC1-7a",
+  "module": "rag_config查询",
+  "steps": "GET /eval/runs/{RB} 详情",
+  "expected": "rag_config={top_k:8} 正确返回",
+  "actual": "HTTP 200 rag_config={'top_k': 8}",
+  "status": "PASS",
+  "note": ""
+ },
+ {
+  "tc": "TC1-7b",
+  "module": "rag_config查询",
+  "steps": "GET /eval/runs/{RFULL} 详情",
+  "expected": "rag_config 三字段完整返回",
+  "actual": "HTTP 200 rag_config={'top_k': 8, 'chunk_size': 500, 'search_mode': 'vector_only'}",
+  "status": "PASS",
+  "note": ""
+ },
+ {
+  "tc": "TC1-7c",
+  "module": "rag_config查询",
+  "steps": "GET /eval/runs/{RNO}（未传配置）详情",
+  "expected": "rag_config=null",
+  "actual": "HTTP 200 rag_config=None",
+  "status": "PASS",
+  "note": ""
+ },
+ {
+  "tc": "TC1-7d",
+  "module": "rag_config查询",
+  "steps": "GET /eval/runs 列表",
+  "expected": "列表 rag_config 字段正确返回(JSON/null)",
+  "actual": "HTTP 200 RB={'top_k': 8} RNO=None RFULL={'top_k': 8, 'chunk_size': 500, 'search_mode': 'vector_only'}",
+  "status": "PASS",
+  "note": ""
+ },
+ {
+  "tc": "TC6-1a",
+  "module": "兼容性-旧数据",
+  "steps": "GET /eval/runs/1~4（历史无rag_config）",
+  "expected": "rag_config=null",
+  "actual": "HTTP 200; [(1, None), (2, None), (3, None), (4, None)]",
+  "status": "PASS",
+  "note": ""
+ },
+ {
+  "tc": "TC5-1pre",
+  "module": "导出-后端CSV",
+  "steps": "GET /eval/runs/5/export（已有旧run）",
+  "expected": "200 CSV下载，含BOM与表头",
+  "actual": "HTTP 200 ct=text/csv; charset=utf-8 BOM=True head='\\ufeffitem_id,question,answer,faithfulness,answer_relevancy,context_precision,context'",
+  "status": "PASS",
+  "note": "BOM=True避免Excel中文乱码"
+ },
+ {
+  "tc": "TC5-1pre2",
+  "module": "导出-权限",
+  "steps": "user01 GET /eval/runs/5/export",
+  "expected": "403（导出仅管理员）",
+  "actual": "HTTP 403",
+  "status": "PASS",
+  "note": "前端需对user隐藏导出按钮，若未隐藏为前端体验问题"
+ }
+]

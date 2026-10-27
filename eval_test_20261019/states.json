@@ -1,0 +1,90 @@
+{
+ "REMPTY": {
+  "status": "done",
+  "total_items": 0,
+  "success_items": 0,
+  "metrics": {
+   "faithfulness": null,
+   "context_recall": null,
+   "answer_relevancy": null,
+   "context_precision": null
+  },
+  "rag_config": null,
+  "error_msg": null
+ },
+ "RA": {
+  "status": "done",
+  "total_items": 5,
+  "success_items": 3,
+  "metrics": {
+   "faithfulness": 0.607407,
+   "context_recall": 0.0,
+   "answer_relevancy": 0.082819,
+   "context_precision": 0.0
+  },
+  "rag_config": {
+   "top_k": 3
+  },
+  "error_msg": null
+ },
+ "RNO": {
+  "status": "done",
+  "total_items": 5,
+  "success_items": 3,
+  "metrics": {
+   "faithfulness": 0.546296,
+   "context_recall": 0.0,
+   "answer_relevancy": 0.052485,
+   "context_precision": 0.0
+  },
+  "rag_config": null,
+  "error_msg": null
+ },
+ "RB": {
+  "status": "done",
+  "total_items": 5,
+  "success_items": 3,
+  "metrics": {
+   "faithfulness": 0.925611,
+   "context_recall": 0.0,
+   "answer_relevancy": 0.143673,
+   "context_precision": 0.0
+  },
+  "rag_config": {
+   "top_k": 8
+  },
+  "error_msg": null
+ },
+ "RFULL": {
+  "status": "done",
+  "total_items": 5,
+  "success_items": 3,
+  "metrics": {
+   "faithfulness": 0.863095,
+   "context_recall": 0.0,
+   "answer_relevancy": 0.174574,
+   "context_precision": 0.0
+  },
+  "rag_config": {
+   "top_k": 8,
+   "chunk_size": 500,
+   "search_mode": "vector_only"
+  },
+  "error_msg": null
+ },
+ "R30": {
+  "status": "done",
+  "total_items": 30,
+  "success_items": 24,
+  "metrics": {
+   "faithfulness": 0.802844,
+   "context_recall": 0.027778,
+   "answer_relevancy": 0.052919,
+   "context_precision": 0.055556
+  },
+  "rag_config": {
+   "top_k": 8
+  },
+  "error_msg": null
+ }
+}

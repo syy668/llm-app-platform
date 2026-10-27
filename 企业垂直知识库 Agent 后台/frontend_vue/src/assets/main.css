@@ -1,0 +1,170 @@
+/* ==========================================================================
+   企业垂直知识库 Agent 后台 —— 全局主题（严格对齐 ui-prototype.html）
+   主色 #165DFF · 背景 #F7F8FA · 卡片 #FFFFFF · 圆角 8px
+   ========================================================================== */
+
+:root {
+  /* 品牌色板 */
+  --primary: #165DFF;
+  --primary-hover: #4080FF;
+  --primary-active: #0E42D2;
+  --primary-light: #E8F3FF;
+  --primary-weak: #F2F7FF;
+
+  /* 中性色板 */
+  --bg: #F7F8FA;
+  --card: #FFFFFF;
+  --text-1: #1D2129;
+  --text-2: #4E5969;
+  --text-3: #86909C;
+  --border: #E5E6EB;
+  --border-light: #F2F3F5;
+
+  /* 语义色 */
+  --success: #00B42A;
+  --success-bg: #E8FFEA;
+  --warning: #FF7D00;
+  --warning-bg: #FFF3E8;
+  --danger: #F53F3F;
+  --danger-bg: #FFECE8;
+  --purple: #722ED1;
+  --purple-bg: #F5EDFF;
+
+  /* 圆角与阴影 */
+  --radius: 8px;
+  --radius-sm: 6px;
+  --shadow-sm: 0 1px 2px rgba(29, 33, 41, 0.04);
+  --shadow-md: 0 4px 16px rgba(29, 33, 41, 0.06);
+
+  /* Element Plus 主色覆盖 */
+  --el-color-primary: #165DFF;
+  --el-color-primary-light-3: #4080FF;
+  --el-color-primary-light-5: #6AA1FF;
+  --el-color-primary-light-7: #B8D0FF;
+  --el-color-primary-light-8: #D0E1FF;
+  --el-color-primary-light-9: #E8F3FF;
+  --el-color-primary-dark-2: #0E42D2;
+  --el-border-radius-base: 8px;
+  --el-border-radius-small: 6px;
+  --el-text-color-primary: #1D2129;
+  --el-text-color-regular: #4E5969;
+  --el-text-color-secondary: #86909C;
+  --el-border-color: #E5E6EB;
+  --el-border-color-light: #E5E6EB;
+  --el-border-color-lighter: #F2F3F5;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Inter, "Microsoft YaHei", "PingFang SC", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px;
+  color: var(--text-1);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+}
+
+/* ---------- 页面结构 ---------- */
+.page { max-width: 1400px; margin: 0 auto; }
+.page-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; gap: 16px; }
+.page-title { font-size: 20px; font-weight: 700; color: var(--text-1); }
+.page-desc { font-size: 13px; color: var(--text-3); margin-top: 4px; }
+.page-actions { display: flex; gap: 10px; flex: none; margin-top: 6px; }
+
+/* ---------- 卡片 ---------- */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px; border-bottom: 1px solid var(--border-light);
+}
+.card-title { font-size: 15px; font-weight: 600; color: var(--text-1); }
+.card-body { padding: 20px; }
+
+/* ---------- 统计卡片 ---------- */
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px; }
+.stat-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 20px; box-shadow: var(--shadow-sm);
+}
+.stat-label { font-size: 12px; color: var(--text-3); }
+.stat-value { font-size: 26px; font-weight: 700; color: var(--text-1); margin-top: 6px; font-variant-numeric: tabular-nums; }
+
+/* ---------- 标签 ---------- */
+.ui-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 4px; font-size: 12px; line-height: 20px; font-weight: 500; white-space: nowrap;
+}
+.ui-tag.tag-blue { background: var(--primary-light); color: var(--primary); }
+.ui-tag.tag-green { background: var(--success-bg); color: var(--success); }
+.ui-tag.tag-orange { background: var(--warning-bg); color: var(--warning); }
+.ui-tag.tag-red { background: var(--danger-bg); color: var(--danger); }
+.ui-tag.tag-purple { background: var(--purple-bg); color: var(--purple); }
+.ui-tag.tag-gray { background: #F2F3F5; color: var(--text-3); }
+
+/* 路由标签（彩色胶囊） */
+.route-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 10px; border-radius: 11px; font-size: 12px; line-height: 20px; color: #fff; font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ---------- 空状态 / 报错 / 骨架 ---------- */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 48px 20px; color: var(--text-3); gap: 10px; text-align: center;
+}
+.empty-icon {
+  width: 56px; height: 56px; border-radius: 16px; background: var(--primary-weak);
+  display: flex; align-items: center; justify-content: center; font-size: 26px;
+}
+.empty-title { font-size: 15px; color: var(--text-2); font-weight: 500; }
+.empty-desc { font-size: 12px; color: var(--text-3); }
+
+.error-card {
+  display: flex; gap: 8px; align-items: flex-start;
+  background: var(--danger-bg); border: 1px solid #FFD0CC; border-radius: var(--radius-sm);
+  padding: 10px 14px; color: var(--danger); font-size: 13px;
+}
+
+.skeleton {
+  position: relative; overflow: hidden; background: #F2F3F5; border-radius: 4px; height: 14px;
+}
+.skeleton::after {
+  content: ""; position: absolute; inset: 0; transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
+  animation: shimmer 1.2s infinite;
+}
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+
+/* ---------- 分页 ---------- */
+.page-pagination { display: flex; justify-content: flex-end; padding: 12px 0 0; }
+
+/* ---------- 工具类 ---------- */
+.muted { color: var(--text-3); }
+.small { font-size: 12px; }
+.strong { font-weight: 600; color: var(--text-1); }
+.mt16 { margin-top: 16px; }
+.mb16 { margin-bottom: 16px; }
+.mono { font-family: "SFMono-Regular", Consolas, "Courier New", monospace; font-size: 12px; }
+
+/* Markdown 表格（report 路由渲染） */
+.md-table { width: 100%; border-collapse: collapse; margin: 6px 0; font-size: 12.5px; }
+.md-table td { border: 1px solid var(--border-light); padding: 6px 10px; color: var(--text-2); }
+.md-table tr:first-child td { background: #f7f8fa; color: var(--text-1); font-weight: 600; }
+
+/* Element Plus 细节微调 */
+.el-card { border-radius: var(--radius); border-color: var(--border); }
+.el-table { --el-table-border-color: var(--border-light); --el-table-header-bg-color: #FAFBFC; }
+.el-table th.el-table__cell { color: var(--text-3); font-weight: 500; background: #FAFBFC; }

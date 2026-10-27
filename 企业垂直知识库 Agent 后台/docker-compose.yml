@@ -1,0 +1,110 @@
+# ============================================================================
+# EvalAgent RAG 评测平台 —— 单机一键编排（4 服务）
+#   MySQL 8（数据持久化 + 健康检查）
+#   Redis 7（AOF 持久化 + 健康检查）
+#   app  FastAPI 后端（依赖 db + redis 健康后自动启动）
+#   frontend  Nginx 前端静态服务（托管 Vue3 dist + 反代 /api）
+#
+# 用法：复制 .env.example 为 .env 并按需修改，然后执行 deploy/start 脚本
+#   或：docker compose up -d
+# 访问入口：http://localhost（前端）  http://localhost:8000/docs（接口文档）
+# 初始化管理员：docker compose exec app python scripts/seed.py --username admin --password <密码> --role admin
+#
+# Windows / Linux 单机通用：仅需安装 Docker Desktop / Docker Engine，无需配置 Python/Node。
+# ============================================================================
+
+name: evalagent
+
+services:
+  # ---------- 1) MySQL 8：业务数据库 ----------
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-12345678}
+      MYSQL_DATABASE: ${DB_NAME:-kb_agent}
+      MYSQL_CHARSET: utf8mb4
+    # 单机部署默认不对外暴露 3306，仅 compose 网络内访问（需要外连时放开下面两行）
+    # ports:
+    #   - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # 首次启动自动建库建表
+      - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_PASSWORD:-12345678}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  # ---------- 2) Redis 7：会话 / 双Token / 黑名单 / 限流 ----------
+  redis:
+    image: redis:7-alpine
+    # AOF 持久化：重启后会话与黑名单数据不丢失
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    # 单机部署默认不对外暴露 6379（需要外连时放开下面两行）
+    # ports:
+    #   - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  # ---------- 3) FastAPI 后端 ----------
+  app:
+    build: .
+    image: evalagent-backend:latest
+    env_file:
+      - .env
+    environment:
+      # 容器内服务名覆盖 .env 中的本机地址（其余 LLM_* 等配置沿用 .env）
+      DATABASE_URL: mysql+pymysql://root:${DB_PASSWORD:-12345678}@mysql:3306/${DB_NAME:-kb_agent}?charset=utf8mb4
+      REDIS_URL: redis://redis:6379/0
+      AUTO_CREATE_TABLES: "true"
+      # 生产镜像默认 prod；本地容器内调试可改 dev（异常返回完整堆栈）
+      APP_ENV: ${APP_ENV:-prod}
+    ports:
+      - "8000:8000"
+    volumes:
+      # 向量库（Chroma 持久化目录）与上传文件、系统配置落盘
+      - ./chroma_db:/app/chroma_db
+      - ./uploads:/app/uploads
+      - ./data:/app/data
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request;urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health', timeout=3)\" || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  # ---------- 4) Nginx 前端静态服务（默认访问入口） ----------
+  frontend:
+    build:
+      # 前端已迁入 Monorepo：../EvalAgent/evalagent_vue；若目录名不同请同步修改
+      context: ../EvalAgent/evalagent_vue
+      dockerfile: Dockerfile
+      args:
+        # 构建期注入 API 基址：相对路径经 nginx 反代到 app:8000
+        VITE_UPSTREAM_API_BASE_URL: /api/v1
+        VITE_LOGIN_URL: /login
+    image: evalagent-frontend:latest
+    ports:
+      - "80:80"
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  redis_data:

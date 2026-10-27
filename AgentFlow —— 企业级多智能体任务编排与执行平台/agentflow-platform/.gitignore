@@ -1,0 +1,75 @@
+# 环境与密钥
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.python-version
+
+# 测试与覆盖率
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.mypy_cache/
+.ruff_cache/
+
+# 运行产物
+logs/
+*.log
+static/generated/
+data/seed/
+tmp/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# 前端（后续迭代）
+frontend/node_modules/
+frontend/dist/
+
+# ---------- W5-Part2：容器与可观测性 ----------
+# 构建产物与本地覆盖
+docker-compose.override.yml
+.docker/
+*.tar
+*.tar.gz
+# 覆盖率 / 测试报告（CI 会产出，不入库）
+coverage.json
+junit.xml
+report.xml
+.pytest_cache/
+# 采集器 / 追踪本地落盘
+otel-data/
+traces/
+*.otlp
+*.trace
+# 容器运行时挂载与日志
+logs/
+storage/*.db
+storage/*.db-shm
+storage/*.db-wal
+# 评测产物（W4 生成，如需归档请单独提交）
+eval_output/*.csv
+eval_output/*.json
+# 人读报告统一归档到 docs/reports/，运行期新产出不入库
+eval_output/*.md
+
+# ---------- v1.0.0 归档 ----------
+# chart-render 运行期产物（可重建；人读报告已归档到 docs/reports/）
+storage/charts/*
+!storage/charts/.gitkeep
+# 本地交付包（由 git archive 生成，不入库）
+dist/

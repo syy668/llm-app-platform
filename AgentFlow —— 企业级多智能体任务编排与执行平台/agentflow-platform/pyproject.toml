@@ -1,0 +1,107 @@
+# =============================================================================
+# AgentFlow Platform —— 工具链配置（W5-Part2 任务 3）
+#
+# 说明：仓库已有 pytest.ini（W1 基线），本文件**只放 ruff 与 coverage 配置**，
+# 不重复声明 pytest 选项，避免两份配置互相覆盖。pytest 通过 `-c pytest.ini`
+# 或默认读取 pytest.ini 生效，coverage 通过 `--cov-config=pyproject.toml` 生效。
+# =============================================================================
+
+[tool.ruff]
+target-version = "py311"
+line-length = 140
+extend-exclude = [
+    ".venv",
+    "venv",
+    "frontend",
+    "storage",
+    "eval_output",
+    "alembic/versions",
+]
+
+[tool.ruff.lint]
+# 刻意**不启用 UP（pyupgrade）**：W1~W5-Part1 冻结基线里大量使用
+# `TimeoutError` 旧别名 / 引号注解 / typing.List，UP 会强制改写存量文件，
+# 与本阶段「业务代码一行不改」的红线冲突。新增代码本身已按现代写法编写。
+select = [
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # bugbear
+    "C4",   # comprehensions
+]
+ignore = [
+    "E501",   # 行宽交给 line-length，注释/中文串不强制断行
+    "B008",   # FastAPI 依赖注入惯用 Depends(...) 作默认值
+    "B904",   # raise ... from 在异常转换处不强求
+    "B905",   # zip() 未加 strict（Py3.10+ 兼容期）
+    "C408",   # dict(...) 调用风格
+]
+
+[tool.ruff.lint.per-file-ignores]
+# 测试里允许 assert、长函数、私有访问
+"tests/*" = ["B011", "B017", "S101", "E402"]
+# 脚本属于运维工具，允许 print
+"scripts/*" = ["T201", "E402"]
+# 应用入口在函数内 import（避免循环依赖），允许 E402
+"app/bootstrap.py" = ["E402"]
+"app/memory/layered_memory.py" = ["E402"]
+"app/observability/*" = ["E402"]
+
+# ---------------------------------------------------------------------------
+# 冻结基线豁免清单（W1 ~ W5-Part1）
+#
+# 这些文件属「不许改一行业务逻辑」的红线范围，存在历史遗留的导入顺序 / 未使用变量。
+# 与其为了 lint 去改冻结文件，不如在这里显式记账：**新增文件必须全绿**，
+# 基线文件仅豁免具体规则码（不是整文件跳过检查）。
+# ---------------------------------------------------------------------------
+"alembic/env.py" = ["I001"]
+"app/main.py" = ["I001"]
+"app/agents/structured.py" = ["F401"]
+"app/core/w5_config.py" = ["F401"]
+"app/mcp/transport_http.py" = ["I001", "E402", "F841"]
+"app/routers/tasks_ext.py" = ["I001"]
+"app/schemas/agent_io.py" = ["F401"]
+"app/schemas/graph_state.py" = ["I001"]
+"app/schemas/orm_models.py" = ["I001"]
+"app/services/checkpoint_service.py" = ["I001"]
+"app/services/task_service.py" = ["B023"]
+"app/tools/kb_adapter.py" = ["I001", "F841"]
+"app/tools/mcp_servers/sql_query.py" = ["I001"]
+"app/tools/mcp_stdio.py" = ["I001"]
+"scripts/verify_seed.py" = ["I001", "F841", "B007"]
+"scripts/w4_common.py" = ["I001", "F401"]
+"tests/conftest.py" = ["I001"]
+"tests/test_mcp_client.py" = ["I001"]
+"tests/test_sql_query_security.py" = ["I001"]
+"tests/test_w2_e2e.py" = ["F841"]
+"tests/test_w3_e2e.py" = ["I001", "F401"]
+"tests/test_w5_mcp_http.py" = ["I001"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+combine-as-imports = true
+
+# ---------------------------------------------------------------------------
+# 覆盖率门禁：CI 里低于 85% 直接失败（与 ci-test.yml 的 --fail-under 一致）
+# ---------------------------------------------------------------------------
+[tool.coverage.run]
+branch = true
+source = ["app"]
+omit = [
+    "app/main.py",
+    "alembic/*",
+    "*/__init__.py",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+    "except ImportError:",
+    "@abstractmethod",
+]

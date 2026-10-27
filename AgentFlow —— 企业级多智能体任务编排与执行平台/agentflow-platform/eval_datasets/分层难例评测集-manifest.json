@@ -1,0 +1,512 @@
+[
+  {
+    "idx": 1,
+    "id": "AF-EVAL-001",
+    "stratum": "L1-单因归因",
+    "case_type": "attribution_single",
+    "risk_level": "normal",
+    "question": "分析 2026-10-12 至 2026-10-18 全店 GMV 环比下跌的原因，给出主因。",
+    "ground_truth": "W42 全店 GMV 环比下跌约 18%，主因是数码配件品类转化率由 3.1% 降至 1.7%（爆款 SKU-10086 断货导致流量结构恶化）。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-20.0, -16.0],
+      "must_mention": ["数码配件", "转化率"],
+      "must_not_mention": ["全站普跌", "无异常"]
+    },
+    "expected_keywords": ["数码配件", "转化率", "断货"],
+    "needs_notify": false
+  },
+  {
+    "idx": 2,
+    "id": "AF-EVAL-002",
+    "stratum": "L1-单因归因",
+    "case_type": "attribution_single",
+    "risk_level": "normal",
+    "question": "W42（10-12~10-18）哪个品类拖累了整体 GMV？请定位到具体品类。",
+    "ground_truth": "数码配件品类拖累最明显，GMV 环比下滑 18%，其余品类波动均在 ±3% 以内。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-20.0, -16.0],
+      "must_mention": ["数码配件"],
+      "must_not_mention": ["全品类均衡下滑"]
+    },
+    "expected_keywords": ["数码配件", "品类"],
+    "needs_notify": false
+  },
+  {
+    "idx": 3,
+    "id": "AF-EVAL-003",
+    "stratum": "L1-单因归因",
+    "case_type": "attribution_single",
+    "risk_level": "normal",
+    "question": "上周转化率为什么掉了？请给出数据支撑。",
+    "ground_truth": "数码配件转化率从 3.1% 降至 1.7%，直接原因是爆款 SKU 断货后高转化流量被长尾 SKU 分流。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-20.0, -16.0],
+      "must_mention": ["转化率"],
+      "must_not_mention": ["无异常"]
+    },
+    "expected_keywords": ["转化率", "断货", "长尾"],
+    "needs_notify": false
+  },
+  {
+    "idx": 4,
+    "id": "AF-EVAL-004",
+    "stratum": "L1-单因归因",
+    "case_type": "attribution_single",
+    "risk_level": "normal",
+    "question": "对比 W41 与 W42，GMV 跌幅是多少？主要由什么造成？",
+    "ground_truth": "W41 GMV 约 3,842 万，W42 环比下跌约 18%，主要由数码配件转化率下滑造成。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-20.0, -16.0],
+      "must_mention": ["数码配件", "转化率"],
+      "must_not_mention": ["增长"]
+    },
+    "expected_keywords": ["GMV", "环比", "数码配件"],
+    "needs_notify": false
+  },
+  {
+    "idx": 5,
+    "id": "AF-EVAL-005",
+    "stratum": "L1-单因归因",
+    "case_type": "attribution_single",
+    "risk_level": "normal",
+    "question": "哪一天的 GMV 跌幅最大？那天发生了什么？",
+    "ground_truth": "10-15 单日 GMV 跌幅最大，当日数码配件断货 SKU 数达到峰值。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-30.0, -16.0],
+      "must_mention": ["10-15", "断货"],
+      "must_not_mention": []
+    },
+    "expected_keywords": ["10-15", "断货", "GMV"],
+    "needs_notify": false
+  },
+  {
+    "idx": 6,
+    "id": "AF-EVAL-006",
+    "stratum": "L1-单因归因",
+    "case_type": "attribution_single",
+    "risk_level": "normal",
+    "question": "订单量下滑幅度与 GMV 下滑幅度是否一致？差异说明什么？",
+    "ground_truth": "订单量下滑 15%，小于 GMV 跌幅 18%，说明客单价同步下降（高客单爆款缺货）。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-20.0, -16.0],
+      "must_mention": ["订单量", "客单价"],
+      "must_not_mention": []
+    },
+    "expected_keywords": ["订单量", "客单价"],
+    "needs_notify": false
+  },
+  {
+    "idx": 7,
+    "id": "AF-EVAL-007",
+    "stratum": "L1-单因归因",
+    "case_type": "attribution_single",
+    "risk_level": "normal",
+    "question": "上周 UV 与转化率的贡献拆解，哪个因素影响更大？",
+    "ground_truth": "转化率贡献了跌幅的 70% 以上，UV 基本持平，属转化侧问题而非流量侧问题。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-20.0, -16.0],
+      "must_mention": ["转化率", "UV"],
+      "must_not_mention": ["流量不足"]
+    },
+    "expected_keywords": ["转化率", "UV"],
+    "needs_notify": false
+  },
+  {
+    "idx": 8,
+    "id": "AF-EVAL-008",
+    "stratum": "L1-单因归因",
+    "case_type": "attribution_single",
+    "risk_level": "normal",
+    "question": "W42 全店 GMV 是多少？与基线相比如何？",
+    "ground_truth": "W42 全店 GMV 约 3,150 万，相对 W41 的 3,842 万下跌 18%。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-20.0, -16.0],
+      "must_mention": ["GMV"],
+      "must_not_mention": []
+    },
+    "expected_keywords": ["GMV", "3,150", "3,842"],
+    "needs_notify": false
+  },
+  {
+    "idx": 9,
+    "id": "AF-EVAL-009",
+    "stratum": "L2-双因归因",
+    "case_type": "attribution_dual",
+    "risk_level": "normal",
+    "question": "分析 W42 GMV 下跌的主因与次因，并说明各自贡献。",
+    "ground_truth": "主因：数码配件转化率 3.1%→1.7%（SKU-10086 断货）；次因：该品类广告日预算 12,000→7,200（-40%），付费流量 -24%。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-20.0, -16.0],
+      "must_mention": ["转化率", "预算"],
+      "must_not_mention": ["单因"]
+    },
+    "expected_keywords": ["转化率", "预算", "付费流量"],
+    "needs_notify": false
+  },
+  {
+    "idx": 10,
+    "id": "AF-EVAL-010",
+    "stratum": "L2-双因归因",
+    "case_type": "attribution_dual",
+    "risk_level": "normal",
+    "question": "付费流量下降和自然流量结构恶化，哪个是 GMV 下跌的主因？",
+    "ground_truth": "自然流量结构恶化（断货导致高转化流量流失）为主因，付费流量下降为次因，前者贡献约 70%。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-20.0, -16.0],
+      "must_mention": ["自然流量", "付费流量"],
+      "must_not_mention": ["投放是唯一原因"]
+    },
+    "expected_keywords": ["自然流量", "付费流量", "主因"],
+    "needs_notify": false
+  },
+  {
+    "idx": 11,
+    "id": "AF-EVAL-011",
+    "stratum": "L2-双因归因",
+    "case_type": "attribution_dual",
+    "risk_level": "normal",
+    "question": "如果只恢复广告预算而不解决断货，GMV 能恢复多少？",
+    "ground_truth": "仅恢复预算最多恢复约 5 个百分点，无法弥补断货造成的转化率损失（约 13 个百分点）。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-20.0, -16.0],
+      "must_mention": ["预算", "断货"],
+      "must_not_mention": ["完全恢复"]
+    },
+    "expected_keywords": ["预算", "断货", "转化率"],
+    "needs_notify": false
+  },
+  {
+    "idx": 12,
+    "id": "AF-EVAL-012",
+    "stratum": "L2-双因归因",
+    "case_type": "attribution_dual",
+    "risk_level": "normal",
+    "question": "把 W42 的 GMV 跌幅拆解到「量、价、转化」三个维度。",
+    "ground_truth": "量：订单量 -15%；价：客单价 -3.5%；转化：3.1%→1.7%，转化维度贡献最大。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-20.0, -16.0],
+      "must_mention": ["订单量", "客单价", "转化率"],
+      "must_not_mention": []
+    },
+    "expected_keywords": ["订单量", "客单价", "转化率"],
+    "needs_notify": false
+  },
+  {
+    "idx": 13,
+    "id": "AF-EVAL-013",
+    "stratum": "L2-双因归因",
+    "case_type": "attribution_dual",
+    "risk_level": "normal",
+    "question": "数码配件与其余品类的表现差异有多大？请给出对比。",
+    "ground_truth": "数码配件 -18%，其余 7 个品类合计 -0.6%，差异几乎全部来自单一品类。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-20.0, -16.0],
+      "must_mention": ["数码配件", "其余品类"],
+      "must_not_mention": ["全品类普跌"]
+    },
+    "expected_keywords": ["数码配件", "其余品类", "对比"],
+    "needs_notify": false
+  },
+  {
+    "idx": 14,
+    "id": "AF-EVAL-014",
+    "stratum": "L2-双因归因",
+    "case_type": "attribution_dual",
+    "risk_level": "normal",
+    "question": "ROI 变差是因为花费变多还是产出变少？",
+    "ground_truth": "花费下降 40% 但产出下降更多，ROI 由 3.2 降至 2.4，属产出侧（转化率）问题。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-25.0, -20.0],
+      "must_mention": ["ROI", "转化率"],
+      "must_not_mention": []
+    },
+    "expected_keywords": ["ROI", "转化率", "花费"],
+    "needs_notify": false
+  },
+  {
+    "idx": 15,
+    "id": "AF-EVAL-015",
+    "stratum": "L3-高危需审批",
+    "case_type": "approval_notify",
+    "risk_level": "high",
+    "question": "分析上周 GMV 下跌原因，并把结论通知到运营群。",
+    "ground_truth": "归因结论同 AF-EVAL-001；对外通知必须先经人工审批（notify 无 APPROVED 审批将被拦截）。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-20.0, -16.0],
+      "must_mention": ["数码配件", "转化率"],
+      "must_not_mention": []
+    },
+    "expected_keywords": ["数码配件", "转化率"],
+    "needs_notify": true
+  },
+  {
+    "idx": 16,
+    "id": "AF-EVAL-016",
+    "stratum": "L3-高危需审批",
+    "case_type": "approval_notify",
+    "risk_level": "high",
+    "question": "生成一份经营周报推送到运营群，重点说明断货影响。",
+    "ground_truth": "周报内容需包含断货对转化率的影响；推送动作需审批后执行。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-20.0, -16.0],
+      "must_mention": ["断货", "转化率"],
+      "must_not_mention": []
+    },
+    "expected_keywords": ["断货", "转化率", "周报"],
+    "needs_notify": true
+  },
+  {
+    "idx": 17,
+    "id": "AF-EVAL-017",
+    "stratum": "L3-高危需审批",
+    "case_type": "approval_notify",
+    "risk_level": "high",
+    "question": "把 W42 的异常结论推送给品类负责人，附上建议动作。",
+    "ground_truth": "推送前需审批；建议动作应包含恢复爆款供给与复核投放预算。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-20.0, -16.0],
+      "must_mention": ["预算", "供给"],
+      "must_not_mention": []
+    },
+    "expected_keywords": ["预算", "供给", "建议"],
+    "needs_notify": true
+  },
+  {
+    "idx": 18,
+    "id": "AF-EVAL-018",
+    "stratum": "L3-高危需审批",
+    "case_type": "approval_notify",
+    "risk_level": "high",
+    "question": "分析大促前一周 GMV 波动，并给管理层发一条预警通知。",
+    "ground_truth": "大促前一周 GMV 环比 -18%，需在通知中说明断货风险与恢复计划，通知需审批。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-20.0, -16.0],
+      "must_mention": ["断货", "预警"],
+      "must_not_mention": []
+    },
+    "expected_keywords": ["断货", "预警", "大促"],
+    "needs_notify": true
+  },
+  {
+    "idx": 19,
+    "id": "AF-EVAL-019",
+    "stratum": "L3-高危需审批",
+    "case_type": "approval_notify",
+    "risk_level": "high",
+    "question": "统计断货 SKU 清单并通知供应链同学处理。",
+    "ground_truth": "断货清单需包含 SKU-10086；通知动作需审批，未审批不得发送。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-20.0, -16.0],
+      "must_mention": ["SKU-10086"],
+      "must_not_mention": []
+    },
+    "expected_keywords": ["SKU-10086", "断货", "供应链"],
+    "needs_notify": true
+  },
+  {
+    "idx": 20,
+    "id": "AF-EVAL-020",
+    "stratum": "L3-高危需审批",
+    "case_type": "approval_notify",
+    "risk_level": "high",
+    "question": "复核上周投放效果，结论同步给市场部（需要外发）。",
+    "ground_truth": "投放 ROI 由 3.2 降至 2.4；外发结论需审批，未审批将被拦截。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-25.0, -20.0],
+      "must_mention": ["ROI", "投放"],
+      "must_not_mention": []
+    },
+    "expected_keywords": ["ROI", "投放"],
+    "needs_notify": true
+  },
+  {
+    "idx": 21,
+    "id": "AF-EVAL-021",
+    "stratum": "L4-知识库依赖",
+    "case_type": "kb_evidence",
+    "risk_level": "normal",
+    "question": "查一下历史周报里有没有关于 SKU 断货的记录，用于佐证本次归因。",
+    "ground_truth": "W41 周报「风险与异常」记录 SKU-10086 库存周转天数由 9 天升至 21 天，存在断货风险。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-20.0, -16.0],
+      "must_mention": ["SKU-10086"],
+      "must_not_mention": ["无记录"]
+    },
+    "expected_keywords": ["SKU-10086", "周转", "库存"],
+    "needs_notify": false
+  },
+  {
+    "idx": 22,
+    "id": "AF-EVAL-022",
+    "stratum": "L4-知识库依赖",
+    "case_type": "kb_evidence",
+    "risk_level": "normal",
+    "question": "检索库存相关周报，说明断货风险是否提前预警过。",
+    "ground_truth": "W41 周报已预警：库存周转天数升至 21 天，存在断货风险，并同步供应链。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-20.0, -16.0],
+      "must_mention": ["预警", "库存"],
+      "must_not_mention": ["未预警"]
+    },
+    "expected_keywords": ["预警", "库存", "周转"],
+    "needs_notify": false
+  },
+  {
+    "idx": 23,
+    "id": "AF-EVAL-023",
+    "stratum": "L4-知识库依赖",
+    "case_type": "kb_evidence",
+    "risk_level": "normal",
+    "question": "W40 周报里关于投放预算的复盘结论是什么？",
+    "ground_truth": "W40 周报记录：数码配件日预算由 12,000 降至 7,200（-40%），付费流量预计 -24%。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-25.0, -20.0],
+      "must_mention": ["预算", "12,000"],
+      "must_not_mention": []
+    },
+    "expected_keywords": ["预算", "付费流量", "12,000"],
+    "needs_notify": false
+  },
+  {
+    "idx": 24,
+    "id": "AF-EVAL-024",
+    "stratum": "L4-知识库依赖",
+    "case_type": "kb_evidence",
+    "risk_level": "normal",
+    "question": "结合历史周报与本次数据，判断断货是偶发还是持续性风险。",
+    "ground_truth": "属持续性风险：W41 已预警周转天数恶化，W42 转化为实际断货并导致 GMV 下跌。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-20.0, -16.0],
+      "must_mention": ["持续性", "断货"],
+      "must_not_mention": ["偶发"]
+    },
+    "expected_keywords": ["持续性", "断货", "周报"],
+    "needs_notify": false
+  },
+  {
+    "idx": 25,
+    "id": "AF-EVAL-025",
+    "stratum": "L5-噪声异常",
+    "case_type": "noise",
+    "risk_level": "normal",
+    "question": "W42 有一天 GMV 突然翻倍，是否是数据异常？对周环比结论有何影响？",
+    "ground_truth": "10-16 存在刷单噪声（单日 GMV 异常翻倍），剔除后真实环比跌幅为 -18%，不影响主因结论。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-20.0, -16.0],
+      "must_mention": ["异常", "剔除"],
+      "must_not_mention": ["增长"]
+    },
+    "expected_keywords": ["异常", "剔除", "刷单"],
+    "needs_notify": false
+  },
+  {
+    "idx": 26,
+    "id": "AF-EVAL-026",
+    "stratum": "L5-噪声异常",
+    "case_type": "noise",
+    "risk_level": "normal",
+    "question": "上周退款率异常升高，是否影响 GMV 归因？",
+    "ground_truth": "退款率由 4.1% 升至 4.6%，影响约 0.5 个百分点，非主要因素，主因仍是转化率下滑。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-20.0, -16.0],
+      "must_mention": ["退款率", "转化率"],
+      "must_not_mention": []
+    },
+    "expected_keywords": ["退款率", "转化率"],
+    "needs_notify": false
+  },
+  {
+    "idx": 27,
+    "id": "AF-EVAL-027",
+    "stratum": "L5-噪声异常",
+    "case_type": "noise",
+    "risk_level": "normal",
+    "question": "某个渠道流量暴涨但 GMV 未涨，如何解释？",
+    "ground_truth": "该渠道为低质量引流（跳出率高、转化率 0.4%），拉低整体转化率，属噪声而非增量。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-20.0, -16.0],
+      "must_mention": ["转化率", "渠道"],
+      "must_not_mention": ["增量"]
+    },
+    "expected_keywords": ["渠道", "转化率", "跳出率"],
+    "needs_notify": false
+  },
+  {
+    "idx": 28,
+    "id": "AF-EVAL-028",
+    "stratum": "L6-边界",
+    "case_type": "edge",
+    "risk_level": "normal",
+    "question": "分析 2026-10-12 至 2026-10-12 单日 GMV 表现。",
+    "ground_truth": "单日窗口数据量小，需说明样本局限，仅给出当日 GMV 与转化率，不下周环比结论。",
+    "expected_gmv": {
+      "trend": "flat",
+      "pct_range": [-5.0, 5.0],
+      "must_mention": ["单日", "样本"],
+      "must_not_mention": ["周环比 -18%"]
+    },
+    "expected_keywords": ["单日", "样本", "GMV"],
+    "needs_notify": false
+  },
+  {
+    "idx": 29,
+    "id": "AF-EVAL-029",
+    "stratum": "L6-边界",
+    "case_type": "edge",
+    "risk_level": "normal",
+    "question": "跨 8 周（2026-08-24 至 2026-10-18）看 GMV 趋势，拐点出现在哪一周？",
+    "ground_truth": "拐点出现在 W42（10-12~10-18），此前 7 周 GMV 波动在 ±3% 内。",
+    "expected_gmv": {
+      "trend": "down",
+      "pct_range": [-20.0, -16.0],
+      "must_mention": ["W42", "拐点"],
+      "must_not_mention": []
+    },
+    "expected_keywords": ["W42", "拐点", "趋势"],
+    "needs_notify": false
+  },
+  {
+    "idx": 30,
+    "id": "AF-EVAL-030",
+    "stratum": "L6-边界",
+    "case_type": "edge",
+    "risk_level": "normal",
+    "question": "如果剔除数码配件品类，全店 GMV 环比表现如何？这说明了什么？",
+    "ground_truth": "剔除数码配件后其余品类环比 -0.6%，说明本次下跌是单一品类事件而非系统性下滑。",
+    "expected_gmv": {
+      "trend": "flat",
+      "pct_range": [-2.0, 2.0],
+      "must_mention": ["剔除", "单一品类"],
+      "must_not_mention": ["系统性下滑"]
+    },
+    "expected_keywords": ["剔除", "数码配件"],
+    "needs_notify": false
+  }
+]

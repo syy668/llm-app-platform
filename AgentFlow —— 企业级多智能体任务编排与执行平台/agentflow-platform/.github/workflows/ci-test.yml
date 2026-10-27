@@ -1,0 +1,322 @@
+# =============================================================================
+# AgentFlow Platform —— CI 流水线（W5-Part2 任务 3）
+#
+# 阶段：
+#   quality  → ruff 静态检查 + 新增文件格式检查
+#   test     → 3 分片并行跑全量 pytest（矩阵：Python 3.11）
+#   coverage → 覆盖率门禁（新增模块 < 85% 直接失败 → PR 不可合并）
+#   scripts  → W4 种子校验 + 三条演示链路（离线可跑，不需要 MySQL/Redis 容器）
+#   docker   → 可选：构建并推送镜像（仅 main / tag 触发）
+#
+# 设计说明（务必读）：
+#   1. **覆盖率门禁口径**：`--cov` 只统计本阶段新增/改动的 6 个模块。
+#      全仓口径当前为 62.10%（W1~W4 的 P2 占位模块如 rag_gateway / memory_service /
+#      eval_gateway 覆盖率为 0~31%），若对全仓设 85% 会在不触碰基线代码的前提下
+#      **永远无法达成**。因此门禁 = 「新增代码 85%」，全仓数字作为报告产物留档，
+#      提升计划见 W5-Part2-自测核对清单.md 的「覆盖率路线图」。
+#   2. 所有测试使用 fakeredis + 内存 SQLite + InMemoryTransport，**不需要起容器**。
+#   3. ruff 对冻结基线文件有精确的规则豁免清单（见 pyproject.toml），
+#      新增文件必须全绿。
+# =============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: [main, develop, "release/**"]
+    tags: ["v*"]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  # 测试期环境（与 tests/conftest.py 的默认值保持一致）
+  APP_ENV: test
+  DEBUG: "false"
+  LOG_LEVEL: ERROR
+  SECRET_KEY: ci-only-secret-key-0123456789abcdef0123456789
+  BCRYPT_ROUNDS: "4"
+  LLM_MOCK: "true"
+  MOCK_EXTERNAL_RAG: "true"
+  MOCK_EXTERNAL_EVAL: "true"
+  CHECKPOINTER_BACKEND: memory
+  CHART_USE_PROCESS_POOL: "false"
+  TOOL_RETRY_BACKOFF_ENABLED: "false"
+  ENABLE_LAYERED_MEMORY: "false"
+  ENABLE_OTEL: "false"
+  MCP_HTTP_ENABLED: "false"
+  SESSION_REGISTRY_BACKEND: memory
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # 1) 静态检查
+  # ---------------------------------------------------------------------------
+  quality:
+    name: Ruff 静态检查
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+            requirements-observability.txt
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt -r requirements-observability.txt
+
+      - name: Ruff 静态检查（全仓，冻结基线豁免见 pyproject.toml）
+        run: ruff check . --output-format=github
+
+      - name: Ruff 格式检查（仅本阶段新增文件）
+        run: |
+          ruff format --check \
+            app/observability \
+            app/core/w6_config.py \
+            app/core/tracing_middleware.py \
+            app/core/resilience_guard.py \
+            app/mcp/session_backend.py \
+            app/bootstrap.py
+
+      - name: 部署清单静态校验（Dockerfile / compose / workflow 不变量）
+        run: python scripts/verify_deploy_manifest.py
+
+  # ---------------------------------------------------------------------------
+  # 2) 测试矩阵（分片并行）
+  # ---------------------------------------------------------------------------
+  test:
+    name: pytest / py${{ matrix.python-version }} / ${{ matrix.shard.name }}
+    runs-on: ubuntu-latest
+    needs: quality
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11"]
+        shard:
+          - name: core
+            files: >-
+              tests/test_auth.py
+              tests/test_planner.py
+              tests/test_executor.py
+              tests/test_replan.py
+              tests/test_graph_routing.py
+              tests/test_sql_query_security.py
+              tests/test_mcp_client.py
+              tests/test_context_service.py
+          - name: e2e
+            files: >-
+              tests/test_w2_e2e.py
+              tests/test_w3_e2e.py
+          - name: w5
+            files: >-
+              tests/test_w5_mcp_http.py
+              tests/test_w5_layered_memory.py
+          - name: w5p2
+            files: >-
+              tests/test_w6_session_backend.py
+              tests/test_w6_otel.py
+              tests/test_w6_resilience.py
+              tests/test_w6_bootstrap.py
+              tests/test_w6_platform_extra.py
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+            requirements-observability.txt
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt -r requirements-observability.txt
+
+      - name: 运行分片用例
+        run: |
+          python -m pytest ${{ matrix.shard.files }} \
+            -p no:randomly \
+            --junitxml=reports/junit-${{ matrix.shard.name }}.xml
+
+      - name: 上传测试报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-${{ matrix.shard.name }}
+          path: reports/
+          if-no-files-found: ignore
+
+  # ---------------------------------------------------------------------------
+  # 3) 覆盖率门禁（阻断条件之一）
+  # ---------------------------------------------------------------------------
+  coverage:
+    name: 覆盖率门禁（新增模块 ≥ 85%）
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+            requirements-observability.txt
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt -r requirements-observability.txt
+
+      - name: 全量用例 + 新增模块覆盖率（< 85% 直接失败）
+        run: |
+          python -m pytest \
+            --cov=app.observability \
+            --cov=app.mcp.session_backend \
+            --cov=app.core.w6_config \
+            --cov=app.core.tracing_middleware \
+            --cov=app.core.resilience_guard \
+            --cov=app.bootstrap \
+            --cov-config=pyproject.toml \
+            --cov-report=term-missing \
+            --cov-report=xml:coverage-w5p2.xml \
+            --cov-fail-under=85
+
+      - name: 全仓覆盖率基线（仅留档，不设门禁）
+        if: always()
+        run: |
+          python -m pytest -q \
+            --cov=app \
+            --cov-config=pyproject.toml \
+            --cov-report=term \
+            --cov-report=xml:coverage-all.xml \
+            --cov-fail-under=0
+
+      - name: 上传覆盖率报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage-*.xml
+          if-no-files-found: ignore
+
+  # ---------------------------------------------------------------------------
+  # 4) W4 评测/校验脚本（离线可跑，验证「交付物没有腐烂」）
+  # ---------------------------------------------------------------------------
+  scripts:
+    name: W4 种子校验 + Demo 三链路
+    runs-on: ubuntu-latest
+    needs: quality
+    env:
+      # 脚本内部会自建 SQLite 夹具，这里只需保证不连外部 MySQL/Redis
+      SESSION_REGISTRY_BACKEND: memory
+      CHECKPOINTER_BACKEND: memory
+      LLM_MOCK: "true"
+      MOCK_EXTERNAL_RAG: "true"
+      MOCK_EXTERNAL_EVAL: "true"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+            requirements-observability.txt
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt -r requirements-observability.txt
+
+      - name: W4 种子硬断言（SQL 只读 / kb 命中 / notify 闸门 / 断点抽样）
+        run: python scripts/verify_seed.py --sample-points 8
+
+      - name: W4 三条演示链路（SSE / 审批续跑 / 驳回重规划 / 取消冻结）
+        run: python scripts/demo_three_flows.py --tag ci
+
+      - name: 上传 Demo 报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-report
+          path: eval_output/
+          if-no-files-found: ignore
+
+  # ---------------------------------------------------------------------------
+  # 5) 可选：构建并推送镜像（仅 main / tag）
+  # ---------------------------------------------------------------------------
+  docker:
+    name: 构建并推送镜像（可选）
+    runs-on: ubuntu-latest
+    needs: [test, coverage, scripts]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: 登录 GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 生成镜像标签
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=sha,prefix=sha-
+
+      - name: 构建并推送
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: 冒烟启动镜像（不推送也能验证可运行）
+        run: |
+          docker run -d --name agentflow-smoke -p 8000:8000 \
+            -e APP_ENV=test \
+            -e SECRET_KEY=ci-only-secret-key-0123456789abcdef \
+            -e ENABLE_OTEL=false \
+            -e MCP_HTTP_ENABLED=false \
+            ghcr.io/${{ github.repository }}:${{ steps.meta.outputs.version }}
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8000/health > /dev/null; then echo "healthy"; break; fi
+            sleep 2
+          done
+          curl -fsS http://127.0.0.1:8000/health
+          docker rm -f agentflow-smoke

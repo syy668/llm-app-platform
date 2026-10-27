@@ -23,6 +23,7 @@ venv/
 # ===== 测试缓存与临时目录 =====
 .pytest_cache/
 .pytest_tmp*/
+.pt*/
 .coverage
 .coverage.*
 htmlcov/
@@ -30,6 +31,11 @@ coverage.xml
 .mypy_cache/
 .ruff_cache/
 .tox/
+
+# ===== 敏感凭据 / 本地 token（绝对不可入库） =====
+._*
+*.token
+*.jwt
 
 # ===== 前端依赖与构建产物 =====
 node_modules/

@@ -1,0 +1,23 @@
+# ---------------------------------------------------------------------------
+# 可观测性依赖（W5-Part2 任务 2）
+#
+# 刻意独立成文件而不并入 requirements.txt：
+#   - requirements.txt 属 W1 基线依赖清单，改它会牵动镜像缓存层与既有锁定版本；
+#   - OTel 只在 ENABLE_OTEL=true 时需要，独立清单让「不埋点」的部署可以完全不装；
+#   - CI 同时安装两份，保证测试能真实校验 span / 指标。
+#
+# 安装：pip install -r requirements-observability.txt
+# ---------------------------------------------------------------------------
+
+# 追踪 SDK（TracerProvider / BatchSpanProcessor / InMemorySpanExporter）
+opentelemetry-sdk>=1.25.0,<2.0.0
+
+# OTLP/HTTP 导出（生产默认；无采集器时运行期自动降级为控制台输出）
+opentelemetry-exporter-otlp-proto-http>=1.25.0,<2.0.0
+
+# 语义约定常量（gen_ai / http / db 属性名）
+opentelemetry-semantic-conventions>=0.46b0
+
+# 注：LangGraph / SQLAlchemy / httpx 的埋点均由本项目的 app/observability/otel_tracing.py
+# 自行实现（回调 + 方法包装），不依赖 opentelemetry-instrumentation-* 自动插桩包，
+# 避免自动插桩在冻结基线上产生不可控的副作用。

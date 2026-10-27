@@ -1,0 +1,33 @@
+# 统一换行符：仓库内一律 LF，避免 Windows 检出 CRLF 后被拷进 Linux 容器
+* text=auto eol=lf
+
+# Windows 批处理保留 CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# 二进制：不做换行符转换，也不做 diff
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.zip binary
+*.gz binary
+*.tar binary
+*.xlsx binary
+*.docx binary
+*.pptx binary
+
+# 不要参与语言统计与 diff 的目录
+docs/** linguist-documentation
+frontend/** linguist-vendored=false
+eval_output/** linguist-generated
+storage/** linguist-generated
+
+# 合并策略：锁文件与生成物保留我方
+package-lock.json merge=binary
+*.min.js -diff

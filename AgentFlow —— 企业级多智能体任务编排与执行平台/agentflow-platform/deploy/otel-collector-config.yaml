@@ -1,0 +1,93 @@
+# =============================================================================
+# OpenTelemetry Collector 配置（W5-Part2 任务 2 配套）
+#
+# 作用：
+#   1. 接收 backend / mcp-http 通过 OTLP/HTTP(4318) 或 OTLP/gRPC(4317) 上报的 trace；
+#   2. 批量 + 内存限流后输出：debug（容器日志，本地排障）+ otlp（转发到 Jaeger/Tempo，
+#      按需取消注释）；
+#   3. spanmetrics connector 把 trace 聚合成指标（含 p95 延迟），由 prometheus exporter
+#      在 :8889/metrics 暴露，可直接接 Grafana。
+#
+# 启动：
+#   docker compose -f docker-compose.prod.yml --profile observability up -d otel-collector
+# 验证：
+#   curl -s localhost:8889/metrics | grep calls
+#   docker compose logs -f otel-collector     # 能看到 span 名称流水
+# =============================================================================
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+        cors:
+          allowed_origins: ["*"]
+
+processors:
+  # 防打爆：单实例限流，超限直接丢（trace 可丢，业务不可挂）
+  memory_limiter:
+    check_interval: 2s
+    limit_mib: 400
+    spike_limit_mib: 100
+  batch:
+    timeout: 5s
+    send_batch_size: 512
+    send_batch_max_size: 1024
+  # 给所有 span 打上环境标签，便于多环境共用一套后端
+  resource:
+    attributes:
+      - key: deployment.environment
+        value: ${env:OTEL_DEPLOYMENT_ENV}
+        action: upsert
+
+connectors:
+  # trace → metrics：直接产出 p50/p95/p99 与调用计数，避免另建一套指标上报
+  spanmetrics:
+    histogram:
+      explicit:
+        buckets: [5ms, 10ms, 25ms, 50ms, 100ms, 250ms, 500ms, 1s, 2s, 5s]
+    dimensions:
+      - name: http.request.method
+      - name: http.response.status_code
+      - name: mcp.tool.name
+      - name: langgraph.node
+      - name: gen_ai.request.model
+    metrics_flush_interval: 15s
+
+exporters:
+  # 本地排障：把 span 摘要打到容器 stdout
+  debug:
+    verbosity: normal
+    sampling_initial: 5
+    sampling_thereafter: 200
+
+  # 指标暴露给 Prometheus 抓取（Grafana 面板数据源）
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    resource_to_telemetry_conversion:
+      enabled: true
+
+  # 需要接 Jaeger / Tempo 时取消注释并改 endpoint
+  # otlp/jaeger:
+  #   endpoint: jaeger:4317
+  #   tls:
+  #     insecure: true
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [debug, spanmetrics]
+      # 接 Jaeger 时改成: exporters: [debug, spanmetrics, otlp/jaeger]
+    metrics:
+      receivers: [spanmetrics]
+      processors: [batch]
+      exporters: [prometheus]
+  telemetry:
+    logs:
+      level: info
+    metrics:
+      address: 0.0.0.0:8888

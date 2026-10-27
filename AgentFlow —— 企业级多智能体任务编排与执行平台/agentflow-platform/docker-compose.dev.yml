@@ -1,0 +1,174 @@
+# =============================================================================
+# AgentFlow Platform —— 本地开发编排（W5-Part2 任务 1）
+#
+# 与 docker-compose.yml（W1 最简编排）的区别：
+#   1. 源码**挂载进容器** + uvicorn --reload，改代码即时生效，无需重建镜像；
+#   2. 同时起 mcp-http 独立服务（9100），本地对联调 HTTP 传输；
+#   3. 默认 memory 会话后端（不依赖 Redis 也能跑），需要验证多副本时改 redis；
+#   4. 默认关闭 OTel（ENABLE_OTEL=false），想本地看链路时置 true + 起 collector。
+#
+# 常用命令：
+#   docker compose -f docker-compose.dev.yml up -d
+#   docker compose -f docker-compose.dev.yml logs -f backend
+#   docker compose -f docker-compose.dev.yml --profile observability up -d otel-collector
+#   docker compose -f docker-compose.dev.yml down          # 保留数据卷
+#   docker compose -f docker-compose.dev.yml down -v       # 连数据一起清
+# =============================================================================
+
+name: agentflow-dev
+
+x-dev-env: &dev-env
+  APP_ENV: local
+  DEBUG: "true"
+  LOG_LEVEL: ${LOG_LEVEL:-DEBUG}
+  LOG_JSON: ${LOG_JSON:-false}
+  SECRET_KEY: ${SECRET_KEY:-dev-only-secret-change-me-0123456789abcdef}
+  BCRYPT_ROUNDS: "4"
+  MYSQL_HOST: mysql
+  MYSQL_PORT: "3306"
+  MYSQL_USER: ${MYSQL_USER:-agentflow}
+  MYSQL_PASSWORD: ${MYSQL_PASSWORD:-agentflow_pwd}
+  MYSQL_DB: ${MYSQL_DB:-agentflow}
+  REDIS_HOST: redis
+  REDIS_PORT: "6379"
+  REDIS_DB: "0"
+  REDIS_KEY_PREFIX: agentflow
+  MOCK_EXTERNAL_RAG: "true"
+  MOCK_EXTERNAL_EVAL: "true"
+  LLM_MOCK: ${LLM_MOCK:-true}
+  LLM_PROVIDER: ${LLM_PROVIDER:-deepseek}
+  LLM_BASE_URL: ${LLM_BASE_URL:-https://api.deepseek.com/v1}
+  LLM_API_KEY: ${LLM_API_KEY:-}
+  LLM_MODEL: ${LLM_MODEL:-deepseek-chat}
+  # 本地默认：分层记忆开、MCP HTTP 开、OTel 关、会话表走内存
+  ENABLE_LAYERED_MEMORY: ${ENABLE_LAYERED_MEMORY:-true}
+  MCP_HTTP_ENABLED: "true"
+  MCP_HTTP_API_KEY: ${MCP_HTTP_API_KEY:-dev-mcp-key}
+  MCP_HTTP_BASE_URL: http://mcp-http:9100
+  MCP_HTTP_PATH: /mcp/v1
+  SESSION_REGISTRY_BACKEND: ${SESSION_REGISTRY_BACKEND:-memory}
+  SESSION_REGISTRY_DEGRADE_TO_MEMORY: "true"
+  ENABLE_OTEL: ${ENABLE_OTEL:-false}
+  OTEL_EXPORTER: ${OTEL_EXPORTER:-console}
+  OTEL_DEPLOYMENT_ENV: local
+  SSE_GUARD_ENABLED: ${SSE_GUARD_ENABLED:-false}
+  CHART_USE_PROCESS_POOL: "false"
+  TOOL_RETRY_BACKOFF_ENABLED: "false"
+
+services:
+  mysql:
+    image: mysql:8.0
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_general_ci
+      - --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_pwd}
+      MYSQL_DATABASE: ${MYSQL_DB:-agentflow}
+      MYSQL_USER: ${MYSQL_USER:-agentflow}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-agentflow_pwd}
+      TZ: Asia/Shanghai
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql_dev_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 40s
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_dev_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # 开发态覆盖镜像默认 CMD：热重载 + 只跑主应用
+    command:
+      - sh
+      - -c
+      - "alembic upgrade head && uvicorn app.bootstrap:app --host 0.0.0.0 --port 8000 --reload --reload-dir app --log-level debug"
+    environment: *dev-env
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      # 源码挂载：改 app/ 立即重载；__pycache__ 用匿名卷隔离，避免污染宿主
+      - ./app:/app/app
+      - ./alembic:/app/alembic
+      - ./scripts:/app/scripts
+      - ./storage:/app/storage
+      - ./.env:/app/.env:ro
+      - /app/app/__pycache__
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).status == 200 else 1)"
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+
+  mcp-http:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command:
+      - python
+      - -m
+      - app.mcp.transport_http
+      - --host
+      - 0.0.0.0
+      - --port
+      - "9100"
+      - --api-key
+      - ${MCP_HTTP_API_KEY:-dev-mcp-key}
+    environment: *dev-env
+    ports:
+      - "${MCP_HTTP_PORT:-9100}:9100"
+    volumes:
+      - ./app:/app/app
+      - ./.env:/app/.env:ro
+      - /app/app/__pycache__
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.110.0
+    profiles: ["observability"]
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./deploy/otel-collector-config.yaml:/etc/otelcol/config.yaml:ro
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "8889:8889"
+    restart: unless-stopped
+
+volumes:
+  mysql_dev_data:
+    name: agentflow_dev_mysql_data
+  redis_dev_data:
+    name: agentflow_dev_redis_data

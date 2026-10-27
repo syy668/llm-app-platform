@@ -1,0 +1,23 @@
+.git
+.gitignore
+.venv
+venv
+__pycache__
+*.py[cod]
+.pytest_cache
+.ruff_cache
+.mypy_cache
+htmlcov
+.coverage
+tests
+frontend
+logs
+data
+*.md
+# v1.0.0 归档：文档统一收拢到 docs/，不入镜像
+docs
+eval_output
+storage/charts
+.env
+.env.*
+!.env.example

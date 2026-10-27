@@ -50,7 +50,9 @@ traces/
 
 # ===== 日志 =====
 *.log
+*.log.*
 logs/
+.vite.out.log*
 
 # ===== IDE / OS =====
 .idea/

@@ -37,6 +37,10 @@ coverage.xml
 *.token
 *.jwt
 
+# ===== 浏览器/无头浏览器缓存（puppeteer 截图残留） =====
+.chrome/
+.shots-tmp/
+
 # ===== 前端依赖与构建产物 =====
 node_modules/
 dist/
